@@ -83,6 +83,15 @@ export function dominantArchetype(skills: SkillMap): { key: string; label: strin
   return ARCHETYPES[best];
 }
 
+export const SKILL_FIELD_MAP: Record<SkillKey, string> = {
+  research: "skillResearch",
+  trading: "skillTrading",
+  onchain: "skillOnchain",
+  defi: "skillDefi",
+  riskManagement: "skillRiskManagement",
+  security: "skillSecurity",
+};
+
 export interface UserRecordLike {
   id: string;
   walletAddress: string;
