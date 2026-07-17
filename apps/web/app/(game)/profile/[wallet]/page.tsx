@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { SKILL_KEYS, type SkillKey } from "@/lib/engines/progression";
+import { getAchievement } from "@/lib/achievements";
 import type { PlayerProfile } from "@/lib/types";
 
 const SKILL_LABELS: Record<SkillKey, string> = {
@@ -183,6 +184,25 @@ export default function ProfilePage({
           ))}
         </CardContent>
       </Card>
+
+      {!!profile.achievements?.length && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Achievements</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {profile.achievements.map((id) => {
+              const def = getAchievement(id);
+              return (
+                <Badge key={id} variant="outline" className="gap-1.5">
+                  <span>{def?.emoji ?? "🏆"}</span>
+                  {def?.label ?? id}
+                </Badge>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent>

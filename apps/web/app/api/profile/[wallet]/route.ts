@@ -16,6 +16,7 @@ export async function GET(
           achievements: true,
         },
       },
+      achievements: { orderBy: { unlockedAt: "desc" } },
     },
   });
 
@@ -28,6 +29,7 @@ export async function GET(
       ...toPlayerProfile(user),
       questsCompleted: user._count.questProgress,
       achievementsCount: user._count.achievements,
+      achievements: user.achievements.map((a) => a.achievementId),
     },
   });
 }
