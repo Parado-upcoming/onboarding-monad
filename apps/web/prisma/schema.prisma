@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Identity & progression -------------------------------------------------
+
+model User {
+  id            String   @id @default(cuid())
+  walletAddress String   @unique
+  displayName   String?
+  avatarUrl     String?
+
+  xp            Int      @default(0)
+  level         Int      @default(1)
+
+  skillResearch      Int @default(0)
+  skillTrading        Int @default(0)
+  skillOnchain         Int @default(0)
+  skillDefi            Int @default(0)
+  skillRiskManagement  Int @default(0)
+  skillSecurity        Int @default(0)
+
+  streakCount   Int      @default(0)
+  lastActiveAt  DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  questProgress        QuestProgress[]
+  achievements         Achievement[]
+  portfolio            Portfolio?
+  trades               Trade[]
+  createdDebates       TradeDebate[]      @relation("DebateCreator")
+  challengedDebates     TradeDebate[]      @relation("DebateChallenger")
+  investigationAttempts InvestigationAttempt[]
+  labSessions           LabSession[]
+  challengeCompletions   ChallengeCompletion[]
+  friendshipsInitiated   Friendship[]      @relation("FriendshipRequester")
+  friendshipsReceived    Friendship[]      @relation("FriendshipAddressee")
+
+  @@index([xp])
+}
+
+enum QuestStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+model QuestProgress {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questId     String
+  status      QuestStatus @default(IN_PROGRESS)
+  answerData  Json?
+  xpAwarded   Int         @default(0)
+  completedAt DateTime?
+  createdAt   DateTime    @default(now())
+
+  @@unique([userId, questId])
+}
+
+model Achievement {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  unlockedAt    DateTime @default(now())
+  txHash        String?
+  tokenId       String?
+
+  @@unique([userId, achievementId])
+}
+
+// --- Social ------------------------------------------------------------------
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+}
+
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  requester   User             @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User             @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+
+  @@unique([requesterId, addresseeId])
+}
+
+enum DebatePosition {
+  BULLISH
+  BEARISH
+  NEUTRAL
+}
+
+enum DebateOutcome {
+  PENDING
+  CREATOR_WON
+  CHALLENGER_WON
+  DRAW
+}
+
+model TradeDebate {
+  id                 String         @id @default(cuid())
+  creatorId          String
+  creator            User           @relation("DebateCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  asset              String
+  timeframeHours      Int
+  creatorPosition     DebatePosition
+  thesis             String
+
+  challengerId        String?
+  challenger          User?          @relation("DebateChallenger", fields: [challengerId], references: [id])
+  challengerPosition   DebatePosition?
+  challengerThesis     String?
+
+  startPrice          Float
+  resolutionPrice      Float?
+
+  outcome            DebateOutcome  @default(PENDING)
+  createdAt          DateTime       @default(now())
+  expiresAt          DateTime
+  resolvedAt          DateTime?
+
+  @@index([outcome, expiresAt])
+}
+
+// --- The Arena -----------------------------------------------------------------
+
+model Portfolio {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cashBalance  Float    @default(10000)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum TradeSide {
+  BUY
+  SELL
+}
+
+model Trade {
+  id                   String    @id @default(cuid())
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  asset                String
+  side                 TradeSide
+  quantity             Float
+  price                Float
+  portfolioValueAfter  Float
+  createdAt            DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// --- Investigation Room ---------------------------------------------------------
+
+model InvestigationAttempt {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  caseId           String
+  conclusion       String
+  correct          Boolean
+  xpAwarded        Int
+  timeTakenSeconds Int
+  completedAt      DateTime @default(now())
+
+  @@unique([userId, caseId])
+}
+
+// --- The Lab (liquidity pool simulation) -----------------------------------------
+
+model LabSession {
+  id                 String    @id @default(cuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  poolPair           String
+  depositValueUsd    Float
+  feesEarned         Float     @default(0)
+  impermanentLoss    Float     @default(0)
+  netResult          Float?
+  createdAt          DateTime  @default(now())
+  closedAt           DateTime?
+}
+
+// --- Community challenges --------------------------------------------------------
+
+model CommunityChallenge {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  title         String
+  description   String
+  createdBy     String
+  requirements  Json
+  rewards       Json
+  createdAt     DateTime @default(now())
+
+  completions   ChallengeCompletion[]
+}
+
+model ChallengeCompletion {
+  id          String              @id @default(cuid())
+  userId      String
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId String
+  challenge   CommunityChallenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  xpAwarded   Int
+  completedAt DateTime            @default(now())
+
+  @@unique([userId, challengeId])
+}

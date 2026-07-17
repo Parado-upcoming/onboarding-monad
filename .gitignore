@@ -1,0 +1,20 @@
+# deps / build
+node_modules/
+.next/
+out/
+build/
+
+# foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/*/*/run-*.json
+contracts/lib/
+
+# env
+.env
+.env.local
+*.env
+
+# misc
+.DS_Store
+*.pem
