@@ -1,4 +1,5 @@
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -10,9 +11,12 @@ export default function Home() {
         Welcome to Web3. Try not to get rekt.
       </h1>
       <p className="max-w-xl text-muted-foreground">
-        Scaffold checkpoint — wallet connection wired to Monad Testnet.
+        A social, gamified way to learn crypto, trading, and DeFi — with
+        friends, not alone. Learn. Decide. Act. See the result. Earn.
       </p>
-      <ConnectButton />
+      <Link href="/dashboard" className={buttonVariants({ size: "lg" })}>
+        Enter The Onboarding
+      </Link>
     </div>
   );
 }
