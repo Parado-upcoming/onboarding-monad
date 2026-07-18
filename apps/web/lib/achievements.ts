@@ -53,6 +53,12 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     description: "Solved a wallet investigation case in the Investigation Room.",
   },
   {
+    id: "monad-explorer",
+    label: "Monad Explorer",
+    emoji: "🧭",
+    description: "Completed the Monad Ecosystem community challenge.",
+  },
+  {
     id: "debate-champion",
     label: "Debate Champion",
     emoji: "⚔️",
