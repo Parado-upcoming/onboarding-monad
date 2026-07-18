@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useQuestProgress } from "@/hooks/use-quest-progress";
 import { getQuestById } from "@/lib/quests/data";
+import { NAV_LINKS } from "@/lib/nav-links";
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useCurrentUser();
@@ -81,14 +82,7 @@ export default function DashboardPage() {
           Your Journey
         </p>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            { href: "/academy", label: "Academy", emoji: "📚" },
-            { href: "/arena", label: "Arena", emoji: "📈" },
-            { href: "/investigation", label: "Investigation", emoji: "🕵️" },
-            { href: "/lab", label: "Lab", emoji: "🧪" },
-            { href: "/leaderboard", label: "Leaderboard", emoji: "🏆" },
-            { href: "/community", label: "Community", emoji: "🎁" },
-          ].map((item) => (
+          {NAV_LINKS.filter((item) => item.href !== "/dashboard").map((item) => (
             <Link key={item.href} href={item.href}>
               <Card className="transition-colors hover:border-violet-500/50">
                 <CardContent className="flex flex-col items-center gap-2 py-6 text-center">
