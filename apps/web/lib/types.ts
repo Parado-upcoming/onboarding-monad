@@ -21,7 +21,7 @@ export interface PlayerProfile {
   archetype: { key: string; label: string };
   questsCompleted?: number;
   achievementsCount?: number;
-  achievements?: string[];
+  achievements?: { achievementId: string; txHash: string | null }[];
 }
 
 export interface SessionResponse {

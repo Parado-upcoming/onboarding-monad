@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { SKILL_KEYS, type SkillKey } from "@/lib/engines/progression";
 import { getAchievement } from "@/lib/achievements";
+import { OnchainAchievements } from "@/components/onchain-achievements";
 import type { PlayerProfile } from "@/lib/types";
 
 const SKILL_LABELS: Record<SkillKey, string> = {
@@ -185,19 +186,35 @@ export default function ProfilePage({
         </CardContent>
       </Card>
 
+      {isOwnProfile && <OnchainAchievements />}
+
       {!!profile.achievements?.length && (
         <Card>
           <CardHeader>
             <CardTitle>Achievements</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
-            {profile.achievements.map((id) => {
-              const def = getAchievement(id);
-              return (
-                <Badge key={id} variant="outline" className="gap-1.5">
+            {profile.achievements.map((a) => {
+              const def = getAchievement(a.achievementId);
+              const badge = (
+                <Badge variant="outline" className="gap-1.5">
                   <span>{def?.emoji ?? "🏆"}</span>
-                  {def?.label ?? id}
+                  {def?.label ?? a.achievementId}
+                  {a.txHash && <span className="text-violet-400">⛓</span>}
                 </Badge>
+              );
+              return a.txHash ? (
+                <a
+                  key={a.achievementId}
+                  href={`https://testnet.monadvision.com/tx/${a.txHash}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="View on-chain"
+                >
+                  {badge}
+                </a>
+              ) : (
+                <span key={a.achievementId}>{badge}</span>
               );
             })}
           </CardContent>

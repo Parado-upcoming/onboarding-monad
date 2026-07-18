@@ -29,7 +29,10 @@ export async function GET(
       ...toPlayerProfile(user),
       questsCompleted: user._count.questProgress,
       achievementsCount: user._count.achievements,
-      achievements: user.achievements.map((a) => a.achievementId),
+      achievements: user.achievements.map((a) => ({
+        achievementId: a.achievementId,
+        txHash: a.txHash,
+      })),
     },
   });
 }
